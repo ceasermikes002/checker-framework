@@ -306,16 +306,16 @@ public class AnnotationFileElementTypes {
     if (intellijAnnotationPaths.isEmpty()) {
       return;
     }
-    boolean noFilesFound = true;
     boolean wasParsing = parsing;
     parsing = true;
     try {
-      SourceChecker checker = factory.getChecker();
       ProcessingEnvironment processingEnv = factory.getProcessingEnv();
       if (stubDebug) {
         AnnotationFileParser.stubDebugStatic(
             processingEnv, "AFET.parseIntellijAnnotations(%s)", intellijAnnotationPaths);
       }
+      boolean noFilesFound = true;
+      SourceChecker checker = factory.getChecker();
       for (String path : intellijAnnotationPaths) {
         String fullPath = resolveAgainstTestSrc(path);
 
@@ -345,12 +345,13 @@ public class AnnotationFileElementTypes {
           }
         }
       }
+      if (noFilesFound) {
+        checker.message(
+            Diagnostic.Kind.NOTE,
+            "No annotations.xml file found within " + intellijAnnotationPaths);
+      }
     } finally {
       parsing = wasParsing;
-    }
-    if (noFilesFound) {
-      checker.message(
-          Diagnostic.Kind.NOTE, "No annotations.xml file found within " + intellijAnnotationPaths);
     }
   }
 
